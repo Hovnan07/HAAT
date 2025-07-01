@@ -22,21 +22,21 @@ export const NavigationRoot = () => {
           name={Screen.MARKETS} 
           component={MarketsScreen} 
           options={{ 
-            title: 'Markets' 
+            header: () => null,
           }} 
         />
         <Stack.Screen 
           name={Screen.MARKET_LIST} 
           component={MarketListScreen} 
           options={{ 
-            title: 'Market List' 
+            header: () => null,
           }} 
         />
         <Stack.Screen 
           name={Screen.MARKET_DETAIL} 
           component={MarketDetailScreen} 
           options={{ 
-            title: 'Market Detail' 
+            header: () => null,
           }} 
         />
       </Stack.Navigator>
