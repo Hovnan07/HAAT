@@ -11,8 +11,8 @@ type AppState = {
 
 export const useAppStore = create<AppState>((set, get) => ({
   loading: false,
-  markets: [],
-  marketsDetail: [],
+  markets: { marketCategories: [] },
+  marketsDetail: { marketSubcategories: [] },
   setLoading: (isLoading: boolean) =>
     set({
       loading: isLoading
@@ -20,9 +20,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   getMarkets: () => {
     set({ loading: true });
     apiClient.get('/markets/4532')
-      .then(response => {
-        console.log(response.data, 'markets');
-        
+      .then(response => {        
         set({ loading: false, markets: response.data });
       })
       .catch(error => {
@@ -34,12 +32,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ loading: true });
     apiClient.get(`/markets/4532/categories/${categoryId}`)
       .then(response => {
-        console.log(response.data);
         set({ loading: false, marketsDetail: response.data });
       })
       .catch(error => {
         set({ loading: false });
-        console.log(error);
+        console.log(error, 'error');
       })
   }
 

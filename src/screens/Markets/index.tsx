@@ -15,7 +15,6 @@ const MarketsScreen = () => {
     const navigation: NativeStackNavigationProp<RootStackParamList> = useNavigation();
     const { getMarkets, markets, loading } = useAppStore((state) => state);
     const { language } = useSettingsStore((state) => state);
-    console.log(language, 'language', markets);
     useEffect(() => {
         getMarkets();
     }, []);
@@ -26,9 +25,9 @@ const MarketsScreen = () => {
                     columnWrapperStyle={{ justifyContent: "space-between" }}
                     data={markets?.marketCategories}
                     numColumns={2}
-                    renderItem={({ item }) => {
+                    renderItem={({ item, index }) => {
                         return (
-                            <TouchableOpacity onPress={() => navigation.navigate(Screen.MARKET_DETAIL, { marketId: item.id })} style={[styles.marketCategoryItem, { width: width / 2 - 30 }]}>
+                            <TouchableOpacity onPress={() => navigation.navigate(Screen.MARKET_DETAIL, { marketId: item.id, index: index })} style={[styles.marketCategoryItem, { width: width / 2 - 30 }]}>
                                 <Image source={{ uri: 'https://im-staging.haat.delivery/' + item.serverImageUrl }}
                                     style={styles.image}
                                     resizeMode="stretch"
