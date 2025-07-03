@@ -43,6 +43,7 @@ const MarketDetailScreen = ({ route }: Props) => {
   const [isAtEnd, setIsAtEnd] = useState(false);
   const [isAtStart, setIsAtStart] = useState(true);
   const [pagerScrollEnabled, setPagerScrollEnabled] = useState(false);
+  const [isBlockedScrolling, setIsBlockedScrolling] = useState(true);
 
   useEffect(() => {
     setCategories(markets?.marketCategories || []);
@@ -114,13 +115,18 @@ const MarketDetailScreen = ({ route }: Props) => {
       });
     }
   };
+  const lastScrollY = useRef(0);
 
   const handleScroll = useCallback((event: any) => {
     const { contentSize, layoutMeasurement, contentOffset } = event.nativeEvent;
-    const paddingToBottom = 20; 
-    
+    const paddingToBottom = 0; 
+
     const atEnd = contentOffset.y >= contentSize.height - layoutMeasurement.height - paddingToBottom;
     const atStart = contentOffset.y <= paddingToBottom;
+  const currentScrollY = contentOffset.y;
+  console.log({end: atEnd, start: atStart});
+  console.log(contentOffset.y, contentSize.height, layoutMeasurement.height);
+  setPagerScrollEnabled(false);
     
     setIsAtEnd(atEnd);
     setIsAtStart(atStart);
@@ -129,7 +135,25 @@ const MarketDetailScreen = ({ route }: Props) => {
     setPagerScrollEnabled(atEnd || atStart);
   }, []);
 
-  const onViewableItemsChanged = useCallback(({ viewableItems, changed }: any) => {
+  const handleScrollBeginDrag = useCallback((event: any) => {
+    const { contentSize, layoutMeasurement, contentOffset } = event.nativeEvent;
+    const atEnd = contentOffset.y >= contentSize.height - layoutMeasurement.height;
+    const atStart = contentOffset.y <= layoutMeasurement.height;
+    const currentScrollY = contentOffset.y;
+    if (currentScrollY > lastScrollY.current) {
+      console.log('down');
+      if(!atEnd){
+        setPagerScrollEnabled(true);
+      }
+    } else if (currentScrollY < lastScrollY.current) {
+      console.log('up');
+      if(!atStart){
+        setPagerScrollEnabled(true);
+      }
+    }
+  }, []);
+
+  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     const visibleSection = viewableItems.find((item: any) => item.section);
     if (visibleSection && marketsDetail?.marketSubcategories) {
       const sectionTitle = visibleSection.section.title;
@@ -177,15 +201,13 @@ const MarketDetailScreen = ({ route }: Props) => {
             }}
           />
 
-
           <PagerView overdrag={true}
             ref={pagerRef}
             overScrollMode="always"
             onPageSelected={onPageSelected}
+            scrollEnabled={pagerScrollEnabled}
             style={styles.pagerView} 
             initialPage={Number(activeCategoryIndex)} 
-            scrollEnabled={true}
-            // offscreenPageLimit={1}
             orientation="vertical" >
             {categories?.map((category) => {
               return (
@@ -226,9 +248,7 @@ const MarketDetailScreen = ({ route }: Props) => {
                         showsVerticalScrollIndicator={false}
                         onViewableItemsChanged={onViewableItemsChanged}
                         onScroll={handleScroll}
-                        onScrollBeginDrag={() => {
-                          setPagerScrollEnabled(false);
-                        }}
+                        onScrollBeginDrag={handleScrollBeginDrag}
                       />
                     )}
                   </>
